@@ -1,0 +1,14 @@
+[Unit]
+Description=rns-time: authenticated time over Reticulum
+After=network.target rnsd.service
+Wants=rnsd.service
+
+[Service]
+ExecStart=/usr/bin/python3 -m rns_time.server
+WorkingDirectory=/opt/rns-time
+Environment=PYTHONPATH=/opt/rns-time
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
