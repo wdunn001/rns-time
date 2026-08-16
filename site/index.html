@@ -69,9 +69,16 @@ footer{margin-top:44px;color:var(--dim);font-size:12px;font-family:var(--mono)}
   <h2>Connect</h2>
   <ol>
     <li>Install Reticulum: <code>pip install rns</code></li>
-    <li>Join the mesh — interface details for this network are published at
-        <a href="https://rns.quasarke.net">rns.quasarke.net</a> (TCP + I2P entry points),
-        or use your own RNode/LoRa path.</li>
+    <li>Join the mesh — easiest path is the public TCP backbone: add this to your
+        Reticulum config (<code>~/.reticulum/config</code>), or the equivalent in Sideband
+        (Connectivity → TCP):
+      <pre>[[quasarke backbone]]
+  type = TCPClientInterface
+  enabled = yes
+  target_host = rns.quasarke.net
+  target_port = 4965</pre>
+        More entry points (I2P, LoRa) at <a href="https://rns.quasarke.net">rns.quasarke.net</a>,
+        or use your own RNode/LoRa path into the mesh.</li>
     <li>Get the client:
       <pre>git clone https://devops.quasarke.net/wdunn001/rns-time.git
 cd rns-time</pre></li>
