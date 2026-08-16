@@ -6,13 +6,14 @@ Prints its destination hash on startup — that hash is what clients need.
     python3 -m rns_time.server [--identity PATH] [--config RNS_CONFIG_DIR]
 """
 import argparse
+import datetime
 import os
 import subprocess
 import time
 
 import RNS
 
-from . import protocol
+from . import manifest, protocol
 
 IDENTITY_PATH_DEFAULT = os.path.expanduser("~/.rns_time/identity")
 ANNOUNCE_INTERVAL = 1800  # seconds
@@ -50,6 +51,11 @@ def main():
     dest = RNS.Destination(identity, RNS.Destination.IN, RNS.Destination.SINGLE,
                            protocol.APP_NAME, *protocol.ASPECTS)
     dest.set_link_established_callback(on_link)
+    # MeshAPI request-handler (discovery + the simple "now" op) alongside the
+    # packet-based NTP exchange. Same destination, different access path.
+    dest.register_request_handler(protocol.MESHAPI_PATH,
+                                  response_generator=on_meshapi_request,
+                                  allow=RNS.Destination.ALLOW_ALL)
 
     RNS.log(f"[rns-time] serving as {RNS.prettyhexrep(dest.hash)}")
     print(f"rns-time destination: {RNS.hexrep(dest.hash, delimit=False)}")
@@ -66,6 +72,28 @@ def main():
 
 def on_link(link):
     link.set_packet_callback(on_packet)
+
+
+def on_meshapi_request(path, data, request_id, link_id, remote_identity, requested_at):
+    """MeshAPI request-handler: __manifest__ discovery + the 'now' op."""
+    try:
+        req = protocol.unpack(data)
+    except Exception:
+        return protocol.pack({"v": protocol.VERSION, "ok": False, "err": "bad_encoding"})
+    if not isinstance(req, dict):
+        return protocol.pack({"v": protocol.VERSION, "ok": False, "err": "bad_encoding"})
+    if req.get("op") == protocol.MANIFEST_OP:
+        return protocol.pack({"v": protocol.VERSION, "ok": True, "manifest": manifest.MANIFEST})
+    if req.get("op") == "now":
+        stratum, disp, leap = chrony_quality()
+        utc = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        resp = {"v": protocol.VERSION, "ok": True,
+                "res": {"utc": utc, "epoch": time.time(), "stratum": stratum,
+                        "root_disp_ms": disp, "leap": leap}}
+        if stratum > protocol.MAX_HEALTHY_STRATUM:
+            resp["degraded"] = True
+        return protocol.pack(resp)
+    return protocol.pack({"v": protocol.VERSION, "ok": False, "err": "bad_op"})
 
 
 def on_packet(data, packet):

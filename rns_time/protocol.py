@@ -10,6 +10,17 @@ VERSION = 1
 APP_NAME = "rnstime"
 ASPECTS = ("time",)
 
+# MeshAPI (github.com/wdunn001/meshapi): a request-handler path alongside the
+# packet-based NTP exchange, so MeshAPI clients can discover this service and
+# call a simple request/response "now" op. The precise 4-timestamp sync stays on
+# the packet path above.
+MESHAPI_PATH = "t"
+MANIFEST_OP = "__manifest__"
+
+
+def pack(obj):
+    return umsgpack.packb(obj)
+
 # Server-side health: refuse to advertise healthy time above this chrony stratum.
 MAX_HEALTHY_STRATUM = 9
 
