@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rns-time — time over Reticulum</title>
+<style>
+:root{--bg0:#06080f;--bg1:#0b1020;--card:rgba(255,255,255,.045);--edge:rgba(255,255,255,.09);
+--txt:#e8ecf6;--dim:#8b93a8;--accent:#4ade80;--accent2:#39d5ff;
+--mono:'SF Mono',ui-monospace,'Cascadia Code',Consolas,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:radial-gradient(1000px 700px at 50% -10%,#0d1f16 0%,var(--bg1) 45%,var(--bg0) 100%);
+color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6}
+.wrap{max-width:840px;margin:0 auto;padding:48px 24px}
+h1{font-size:34px;font-weight:700}
+h1 b{color:var(--accent)}
+.tag{color:var(--dim);font-size:16px;margin:6px 0 28px}
+h2{font-size:19px;margin:34px 0 10px;color:var(--accent2)}
+p{color:#c6cdde;margin:10px 0}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:14px;padding:18px 20px;margin:14px 0}
+code,pre{font-family:var(--mono);font-size:13.5px}
+code{background:rgba(255,255,255,.07);padding:2px 7px;border-radius:6px}
+pre{background:#0a0e1c;border:1px solid var(--edge);border-radius:12px;padding:14px 16px;
+overflow-x:auto;margin:10px 0}
+.hash{font-family:var(--mono);font-size:15px;color:var(--accent);word-break:break-all;
+background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.25);border-radius:10px;
+padding:12px 16px;margin:8px 0;cursor:pointer}
+.hash:hover{border-color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--edge)}
+th{color:var(--dim);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.1em}
+td{font-family:var(--mono);color:#c6cdde}
+.dim{color:var(--dim);font-size:13px}
+a{color:var(--accent2)}
+ol{margin:8px 0 8px 22px;color:#c6cdde}
+li{margin:6px 0}
+footer{margin-top:44px;color:var(--dim);font-size:12px;font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>rns-<b>time</b></h1>
+  <div class="tag">Authenticated, GPS-traceable time over Reticulum — for nodes with no internet, no NTP, no cell. LoRa-tolerant.</div>
+
+  <div class="card">
+    <div class="dim">SERVER DESTINATION (tap to copy)</div>
+    <div class="hash" id="hash" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.textContent.trim())">e210fb416af335bd68a9ed4b86919895</div>
+    <div class="dim">Time source: stratum-1 GPS (OpenTimeCard Mini / u-blox MAX-M10S) → chrony → this service.
+    The server refuses to announce when its own clock is in holdover.</div>
+  </div>
+
+  <h2>Why this exists</h2>
+  <p>Off-grid nodes drift by minutes or days, and wrong time breaks certificate validity,
+  log ordering, schedules, and any protocol with timestamps. rns-time carries time over
+  whatever Reticulum can traverse — TCP, I2P, LoRa — and unlike classic NTP, the answer is
+  <b>authenticated</b>: an RNS Link is end-to-end encrypted to the server identity above, so
+  if you have the right hash, nobody can spoof your time.</p>
+
+  <h2>Expected accuracy</h2>
+  <table>
+    <tr><th>transport</th><th>typical RTT</th><th>offset error</th></tr>
+    <tr><td>TCP / LAN</td><td>10–100 ms</td><td>~1–20 ms</td></tr>
+    <tr><td>I2P</td><td>0.5–5 s</td><td>~50–500 ms</td></tr>
+    <tr><td>LoRa</td><td>1–6 s</td><td>~0.2–2 s</td></tr>
+  </table>
+  <p class="dim">The 4-timestamp exchange cancels path delay; the residual is path <i>asymmetry</i>.
+  Multi-second RTTs are fine — that's the point.</p>
+
+  <h2>Connect</h2>
+  <ol>
+    <li>Install Reticulum: <code>pip install rns</code></li>
+    <li>Join the mesh — interface details for this network are published at
+        <a href="https://rns.quasarke.net">rns.quasarke.net</a> (TCP + I2P entry points),
+        or use your own RNode/LoRa path.</li>
+    <li>Get the client:
+      <pre>git clone https://devops.quasarke.net/wdunn001/rns-time.git
+cd rns-time</pre></li>
+    <li>Ask for the time:
+      <pre>python3 -m rns_time.client e210fb416af335bd68a9ed4b86919895</pre>
+      Add <code>--set</code> (as root) to step your clock. Add <code>--timeout 120</code> on slow LoRa paths.</li>
+  </ol>
+
+  <h2>Protocol (v1) — for implementers</h2>
+  <div class="card">
+    <p class="dim" style="margin:0 0 8px">Open an RNS Link to app <code>rnstime</code>, aspect <code>time</code>.
+    Per round, send msgpack <code>{"v":1,"t1":&lt;send time&gt;}</code>; the server replies
+    <code>{"v":1,"t1",…,"t2":&lt;recv&gt;,"t3":&lt;send&gt;,"stratum","root_disp_ms","leap"}</code>.
+    Stamp <code>t4</code> on arrival:</p>
+    <pre>offset = ((t2-t1)+(t3-t4))/2      delay = (t4-t1)-(t3-t2)</pre>
+    <p class="dim" style="margin:8px 0 0">Run several rounds, keep the lowest-delay sample.
+    Ignore answers with stratum ≥ 10 (server holdover). Only step forward from
+    store-and-forward sources; live Links may step either way.</p>
+  </div>
+
+  <footer>
+    rns-time v0.1 · source: <a href="https://devops.quasarke.net/wdunn001/rns-time">wdunn001/rns-time</a>
+    · dashboards: <a href="https://ntp.quasarke.net">ntp.quasarke.net</a> · <a href="https://rns.quasarke.net">rns.quasarke.net</a>
+  </footer>
+</div>
+</body>
+</html>

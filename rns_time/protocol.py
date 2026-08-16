@@ -1,7 +1,10 @@
 """rns-time protocol v1: wire format + offset math (shared by server and client)."""
 import time
 
-import umsgpack  # bundled with RNS
+try:
+    import umsgpack  # standalone package (pip install umsgpack)
+except ImportError:  # RNS pip package vendors it, but not top-level
+    from RNS.vendor import umsgpack
 
 VERSION = 1
 APP_NAME = "rnstime"
