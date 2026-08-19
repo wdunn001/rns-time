@@ -1,14 +1,13 @@
 # rns-time
 
 **Authenticated time distribution over [Reticulum](https://reticulum.network/).**
-GPS-traceable time for off-grid mesh nodes — over TCP, I2P, or LoRa transports —
-with no internet anywhere in the chain.
+GPS-traceable time for off-grid mesh nodes, over TCP, I2P, or LoRa transports, with no internet anywhere in the chain.
 
 ```
 GPS satellites ─▶ stratum-1 chrony (OpenTimeCard) ─▶ rns-time server (RNS node)
                                                           │  4-timestamp exchange over an RNS Link
                                                           ▼
-                                     mesh clients (LoRa / TCP / I2P) — no internet, no NTP
+                                     mesh clients (LoRa / TCP / I2P), no internet, no NTP
 ```
 
 ## Why
@@ -18,20 +17,20 @@ maybe no GPS. But wrong time breaks TLS-style cert validity windows, log orderin
 scheduling, and any cryptographic protocol with timestamps. rns-time gives a mesh
 node time that is:
 
-- **GPS-traceable** — the reference implementation serves from a stratum-1 chrony host
-- **Authenticated** — an RNS Link is end-to-end encrypted to the *server's identity*;
+- **GPS-traceable**, the reference implementation serves from a stratum-1 chrony host
+- **Authenticated**, an RNS Link is end-to-end encrypted to the *server's identity*;
   if you know the server's destination hash, nobody can spoof its time answers
   (contrast: classic NTP is plaintext and trivially spoofed)
-- **Latency-tolerant** — the NTP-style 4-timestamp exchange cancels *path delay*;
+- **Latency-tolerant**, the NTP-style 4-timestamp exchange cancels *path delay*;
   residual error is path *asymmetry*, not latency. Multi-second LoRa RTTs are fine.
 
 ## Expected accuracy
 
 | Transport | typical RTT | expected offset error |
 |---|---|---|
-| TCP / local | 10–100 ms | ~1–20 ms |
-| I2P | 0.5–5 s | ~50–500 ms |
-| LoRa (fast preset) | 1–6 s | ~0.2–2 s |
+| TCP / local | 10-100 ms | ~1-20 ms |
+| I2P | 0.5-5 s | ~50-500 ms |
+| LoRa (fast preset) | 1-6 s | ~0.2-2 s |
 
 For a node that was days or weeks adrift, every row of that table is a win.
 
@@ -54,7 +53,7 @@ offset = ((t2-t1)+(t3-t4))/2      delay = (t4-t1)-(t3-t2)
 
 Several rounds are run; the sample with the **lowest delay** wins (least queuing,
 least asymmetry). The server includes its chrony stratum + root dispersion so the
-client knows the *quality* of what it's syncing to — a server in holdover says so.
+client knows the *quality* of what it's syncing to, a server in holdover says so.
 
 ## Usage
 
@@ -71,14 +70,14 @@ python3 -m rns_time.client <server_destination_hash> --set    # step the clock (
 
 `--set` steps with `date`/`clock_settime` when the offset is large and leaves fine
 discipline to whatever the node runs locally. Rule of thumb: mesh time is for getting
-a node from "wrong by days" to "right within the table above" — not for µs discipline.
+a node from "wrong by days" to "right within the table above", not for µs discipline.
 
 ## Files
-- `rns_time/protocol.py` — wire format + offset math (shared)
-- `rns_time/server.py` — serves time; refuses to claim health when local chrony is in holdover
-- `rns_time/client.py` — N-round exchange, best-sample selection, optional `--set`
-- `rnstime-server.service` — systemd unit
-- `beacon/` — (experimental, stub) LXMF coarse time beacon for store-and-forward
+- `rns_time/protocol.py`, wire format + offset math (shared)
+- `rns_time/server.py`, serves time; refuses to claim health when local chrony is in holdover
+- `rns_time/client.py`, N-round exchange, best-sample selection, optional `--set`
+- `rnstime-server.service`, systemd unit
+- `beacon/`, (experimental, stub) LXMF coarse time beacon for store-and-forward
   recovery of nodes that were completely dark. Not part of protocol v1.
 
 ## Security notes
