@@ -1,7 +1,7 @@
 """rns-time server: authenticated GPS-traceable time over Reticulum.
 
 Runs next to an RNS instance (shared rnsd is fine) on a chrony-synced host.
-Prints its destination hash on startup — that hash is what clients need.
+Prints its destination hash on startup - that hash is what clients need.
 
     python3 -m rns_time.server [--identity PATH] [--config RNS_CONFIG_DIR]
 """
@@ -66,7 +66,7 @@ def main():
             dest.announce()
             RNS.log(f"[rns-time] announced (stratum {stratum}, root_disp {disp}ms)")
         else:
-            RNS.log(f"[rns-time] NOT announcing — local chrony unhealthy (stratum {stratum})")
+            RNS.log(f"[rns-time] NOT announcing - local chrony unhealthy (stratum {stratum})")
         time.sleep(ANNOUNCE_INTERVAL)
 
 

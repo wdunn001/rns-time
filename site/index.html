@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>rns-time — time over Reticulum</title>
+<title>rns-time - time over Reticulum</title>
 <style>
 :root{--bg0:#06080f;--bg1:#0b1020;--card:rgba(255,255,255,.045);--edge:rgba(255,255,255,.09);
 --txt:#e8ecf6;--dim:#8b93a8;--accent:#4ade80;--accent2:#39d5ff;
@@ -40,38 +40,38 @@ footer{margin-top:44px;color:var(--dim);font-size:12px;font-family:var(--mono)}
 <body>
 <div class="wrap">
   <h1>rns-<b>time</b></h1>
-  <div class="tag">Authenticated, GPS-traceable time over Reticulum — for nodes with no internet, no NTP, no cell. LoRa-tolerant.</div>
+  <div class="tag">Authenticated, GPS-traceable time over Reticulum - for nodes with no internet, no NTP, no cell. LoRa-tolerant.</div>
 
   <div class="card">
     <div class="dim">SERVER DESTINATION (tap to copy)</div>
     <div class="hash" id="hash" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.textContent.trim())">e210fb416af335bd68a9ed4b86919895</div>
-    <div class="dim">Time source: stratum-1 GPS (OpenTimeCard Mini / u-blox MAX-M10S) → chrony → this service.
+    <div class="dim">Time source: stratum-1 GPS (OpenTimeCard Mini / u-blox MAX-M10S) -> chrony -> this service.
     The server refuses to announce when its own clock is in holdover.</div>
   </div>
 
   <h2>Why this exists</h2>
   <p>Off-grid nodes drift by minutes or days, and wrong time breaks certificate validity,
   log ordering, schedules, and any protocol with timestamps. rns-time carries time over
-  whatever Reticulum can traverse — TCP, I2P, LoRa — and unlike classic NTP, the answer is
+  whatever Reticulum can traverse - TCP, I2P, LoRa - and unlike classic NTP, the answer is
   <b>authenticated</b>: an RNS Link is end-to-end encrypted to the server identity above, so
   if you have the right hash, nobody can spoof your time.</p>
 
   <h2>Expected accuracy</h2>
   <table>
     <tr><th>transport</th><th>typical RTT</th><th>offset error</th></tr>
-    <tr><td>TCP / LAN</td><td>10–100 ms</td><td>~1–20 ms</td></tr>
-    <tr><td>I2P</td><td>0.5–5 s</td><td>~50–500 ms</td></tr>
-    <tr><td>LoRa</td><td>1–6 s</td><td>~0.2–2 s</td></tr>
+    <tr><td>TCP / LAN</td><td>10-100 ms</td><td>~1-20 ms</td></tr>
+    <tr><td>I2P</td><td>0.5-5 s</td><td>~50-500 ms</td></tr>
+    <tr><td>LoRa</td><td>1-6 s</td><td>~0.2-2 s</td></tr>
   </table>
   <p class="dim">The 4-timestamp exchange cancels path delay; the residual is path <i>asymmetry</i>.
-  Multi-second RTTs are fine — that's the point.</p>
+  Multi-second RTTs are fine - that's the point.</p>
 
   <h2>Connect</h2>
   <ol>
     <li>Install Reticulum: <code>pip install rns</code></li>
-    <li>Join the mesh — easiest path is the public TCP backbone: add this to your
+    <li>Join the mesh - easiest path is the public TCP backbone: add this to your
         Reticulum config (<code>~/.reticulum/config</code>), or the equivalent in Sideband
-        (Connectivity → TCP):
+        (Connectivity -> TCP):
       <pre>[[quasarke backbone]]
   type = TCPClientInterface
   enabled = yes
@@ -87,11 +87,11 @@ cd rns-time</pre></li>
       Add <code>--set</code> (as root) to step your clock. Add <code>--timeout 120</code> on slow LoRa paths.</li>
   </ol>
 
-  <h2>Protocol (v1) — for implementers</h2>
+  <h2>Protocol (v1) - for implementers</h2>
   <div class="card">
     <p class="dim" style="margin:0 0 8px">Open an RNS Link to app <code>rnstime</code>, aspect <code>time</code>.
     Per round, send msgpack <code>{"v":1,"t1":&lt;send time&gt;}</code>; the server replies
-    <code>{"v":1,"t1",…,"t2":&lt;recv&gt;,"t3":&lt;send&gt;,"stratum","root_disp_ms","leap"}</code>.
+    <code>{"v":1,"t1",...,"t2":&lt;recv&gt;,"t3":&lt;send&gt;,"stratum","root_disp_ms","leap"}</code>.
     Stamp <code>t4</code> on arrival:</p>
     <pre>offset = ((t2-t1)+(t3-t4))/2      delay = (t4-t1)-(t3-t2)</pre>
     <p class="dim" style="margin:8px 0 0">Run several rounds, keep the lowest-delay sample.
@@ -100,13 +100,13 @@ cd rns-time</pre></li>
   </div>
 
   <h2>On the mesh itself</h2>
-  <p class="dim">This page also lives <i>on</i> Reticulum — browse the NomadNet node
+  <p class="dim">This page also lives <i>on</i> Reticulum - browse the NomadNet node
   (works from nomadnet or Sideband once you're connected to the mesh):</p>
   <pre>3336fa70bd7604ddacf2fd65ba960724:/page/rns-time.mu</pre>
 
   <footer>
-    rns-time v0.1 · source: <a href="https://github.com/wdunn001/rns-time">github.com/wdunn001/rns-time</a>
-    · dashboards: <a href="https://ntp.quasarke.net">ntp.quasarke.net</a> · <a href="https://rns.quasarke.net">rns.quasarke.net</a>
+    rns-time v0.1 - source: <a href="https://github.com/wdunn001/rns-time">github.com/wdunn001/rns-time</a>
+    - dashboards: <a href="https://ntp.quasarke.net">ntp.quasarke.net</a> - <a href="https://rns.quasarke.net">rns.quasarke.net</a>
   </footer>
 </div>
 </body>

@@ -1,7 +1,7 @@
->rns-time — authenticated time service
+>rns-time - authenticated time service
 
 `F4ade80GPS-traceable time for mesh nodes, over Reticulum itself.`f
-No internet, no NTP, no cell required — works over TCP, I2P, and LoRa.
+No internet, no NTP, no cell required - works over TCP, I2P, and LoRa.
 
 -
 
@@ -13,7 +13,7 @@ app: rnstime   aspect: time
 `=
 
 Source: stratum-1 GPS (u-blox MAX-M10S / OpenTimeCard Mini) -> chrony -> this service.
-Answers are `!authenticated`! — the RNS Link is encrypted to the server identity above,
+Answers are `!authenticated`! - the RNS Link is encrypted to the server identity above,
 so with the right hash nobody can spoof your time. The server refuses to announce
 when its own clock is in holdover.
 
@@ -29,7 +29,7 @@ LoRa          1-6 s          ~0.2-2 s
 `=
 
 The 4-timestamp exchange cancels path delay; the residual is path asymmetry.
-Multi-second LoRa RTTs are fine — that is the point.
+Multi-second LoRa RTTs are fine - that is the point.
 
 -
 
@@ -89,5 +89,5 @@ Only step FORWARD from store-and-forward time; live Links may step either way.
 
 -
 
-web: https://ntp.quasarke.net/rns   ·   source: https://github.com/wdunn001/rns-time
-meshtunnel: https://github.com/wdunn001/meshtunnel   ·   launcher: https://github.com/wdunn001/meshtunnel-launcher
+web: https://ntp.quasarke.net/rns   -   source: https://github.com/wdunn001/rns-time
+meshtunnel: https://github.com/wdunn001/meshtunnel   -   launcher: https://github.com/wdunn001/meshtunnel-launcher

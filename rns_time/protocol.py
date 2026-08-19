@@ -58,5 +58,5 @@ def compute(t1, t2, t3, t4):
 
 def best_sample(samples):
     """samples: list of (offset, delay, meta). Lowest-delay sample has the least
-    queuing and asymmetry — classic NTP filter for high-jitter paths."""
+    queuing and asymmetry - classic NTP filter for high-jitter paths."""
     return min(samples, key=lambda s: s[1]) if samples else None

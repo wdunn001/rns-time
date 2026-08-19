@@ -4,9 +4,9 @@
 GPS-traceable time for off-grid mesh nodes, over TCP, I2P, or LoRa transports, with no internet anywhere in the chain.
 
 ```
-GPS satellites ─▶ stratum-1 chrony (OpenTimeCard) ─▶ rns-time server (RNS node)
+GPS satellites ─> stratum-1 chrony (OpenTimeCard) ─> rns-time server (RNS node)
                                                           │  4-timestamp exchange over an RNS Link
-                                                          ▼
+                                                          v
                                      mesh clients (LoRa / TCP / I2P), no internet, no NTP
 ```
 
@@ -41,7 +41,7 @@ each round sends a msgpack map `{"v":1,"t1":<client send time>}`. The server rep
 immediately with:
 
 ```
-{"v":1, "t1":…, "t2":<server recv>, "t3":<server send>,
+{"v":1, "t1":..., "t2":<server recv>, "t3":<server send>,
  "stratum":<local chrony stratum>, "root_disp_ms":<error bound>, "leap":"Normal"}
 ```
 

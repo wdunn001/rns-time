@@ -41,7 +41,7 @@ def main():
     dest_hash = bytes.fromhex(args.server)
 
     if not RNS.Transport.has_path(dest_hash):
-        print("requesting path…")
+        print("requesting path...")
         RNS.Transport.request_path(dest_hash)
         deadline = time.time() + args.timeout
         while not RNS.Transport.has_path(dest_hash):
@@ -88,7 +88,7 @@ def main():
           f"leap {meta.get('leap')}")
 
     if stratum > protocol.MAX_HEALTHY_STRATUM:
-        print("server is UNHEALTHY (holdover) — not applying"); sys.exit(3)
+        print("server is UNHEALTHY (holdover) - not applying"); sys.exit(3)
 
     if args.set:
         target = time.time() + offset
@@ -100,7 +100,7 @@ def main():
                            check=True, capture_output=True)
             print("clock stepped.")
         except Exception as e:
-            print(f"failed to set clock ({e}) — run as root?"); sys.exit(1)
+            print(f"failed to set clock ({e}) - run as root?"); sys.exit(1)
 
 
 if __name__ == "__main__":

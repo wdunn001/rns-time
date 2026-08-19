@@ -9,7 +9,7 @@ error to roughly the propagation delay, enough to get certificates and schedules
 working again, after which it can do a live rns-time Link exchange for real accuracy.
 
 Open questions before building:
-- propagation-node delivery delay is unbounded → the beacon must carry "sent at"
+- propagation-node delivery delay is unbounded -> the beacon must carry "sent at"
   and clients must treat age as unknown-but-positive (clock can only be stepped
   FORWARD safely from a beacon; never backward)
 - rate: LoRa airtime is precious; hourly is probably too chatty for slow presets
